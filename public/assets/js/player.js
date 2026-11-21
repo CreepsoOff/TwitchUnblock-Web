@@ -9,7 +9,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { lang, t } from './i18n.js'
-import { API_URL, RELAY_BASE, WORKER_BASES, directUrl, fixProxiedUrl, linkMoved, liveSourceOrder, playbackBase, proxyBaseOf, relayHosts, relaysBlocked, vpsRelayOf } from './api.js'
+import { API_URL, RELAY_BASE, WORKER_BASES, directUrl, paintStoryboard, fixProxiedUrl, linkMoved, liveSourceOrder, playbackBase, proxyBaseOf, relayHosts, relaysBlocked, vpsRelayOf } from './api.js'
 import { probeVodSilence, silenceTargets } from './silence.js'
 import { SlowRelayWatch, fragTiming } from './slowrelay.js'
 import { $, esc, formatClock, icon, isIOS, toast } from './util.js'
@@ -1061,6 +1061,7 @@ export class Player {
           <div class="p-progress" hidden>
             <div class="p-track"><div class="p-buffer"></div><div class="p-played"></div></div>
             <div class="p-knob"></div>
+            <div class="p-thumb" hidden aria-hidden="true"></div>
             <div class="p-tip" hidden></div>
           </div>
           <div class="p-bar">
@@ -1092,7 +1093,7 @@ export class Player {
     this.el = {
       spinner: q('.p-spinner'), flash: q('.p-flash'), unmute: q('.p-unmute'),
       ui: q('.p-ui'), big: q('.p-big'), progress: q('.p-progress'), buffer: q('.p-buffer'),
-      played: q('.p-played'), knob: q('.p-knob'), tip: q('.p-tip'),
+      played: q('.p-played'), knob: q('.p-knob'), tip: q('.p-tip'), thumb: q('.p-thumb'),
       play: q('.p-play'), back: q('.p-back'), fwd: q('.p-fwd'), mute: q('.p-mute'), vol: q('.p-vol'),
       time: q('.p-time'), live: q('.p-live'), liveText: q('.p-live-text'), latency: q('.p-latency'),
       backLive: q('.p-back-live'),
@@ -1219,12 +1220,12 @@ export class Player {
       this.hoverTip(e)
       if (this.dragging) this.scrubTo(e)
     })
-    prog.addEventListener('pointerleave', () => { if (!this.dragging) this.el.tip.hidden = true })
+    prog.addEventListener('pointerleave', () => { if (!this.dragging) this.hideTip() })
     const end = (e) => {
       if (!this.dragging) return
       this.dragging = false
       this.root.classList.remove('scrubbing')
-      this.el.tip.hidden = true
+      this.hideTip()
       const target = this.positionFrom(e)
       if (target === null) return
       if (this.kind === 'live') this.rewindLiveTo(this.liveElapsed() - target)
@@ -1281,6 +1282,7 @@ export class Player {
     this.backToLive = null
     this.el.backLive.hidden = true
     this.setChapters([])
+    this.setStoryboard(null)
     // Heure réelle : celle de la VOD d'avant oubliée (setBroadcastStart).
     this.broadcastStart = null
     this.soundSpans = []
@@ -2911,6 +2913,41 @@ export class Player {
     const half = Math.min(this.el.tip.offsetWidth / 2, rect.width / 2)
     const x = Math.max(half, Math.min(rect.width - half, e.clientX - rect.left))
     this.el.tip.style.left = `${x}px`
+    this.hoverThumb(target, e, rect)
+  }
+
+  hideTip() {
+    this.el.tip.hidden = true
+    this.el.thumb.hidden = true
+  }
+
+  /** Storyboard de la VOD (api.getVodStoryboard) : vignette au-dessus de
+   *  l'infobulle, comme sur Twitch. null : pas de vignette (direct, VOD en
+   *  cours d'enregistrement, site hébergé sans la fonction Vercel). */
+  setStoryboard(sb) {
+    this.storyboard = sb ?? null
+    this.storyboardWarm = false
+    this.el.thumb.hidden = true
+  }
+
+  hoverThumb(target, e, rect) {
+    const sb = this.storyboard
+    if (!sb || this.kind === 'live') { this.el.thumb.hidden = true; return }
+    // Premières planches chargées d'avance au premier survol : sans ça, la
+    // vignette restait noire le temps du téléchargement.
+    if (!this.storyboardWarm) {
+      this.storyboardWarm = true
+      for (const u of sb.sheets.slice(0, 2)) new Image().src = u
+    }
+    // Plus petite au doigt et dans un petit lecteur (multi-vue, mini-lecteur).
+    const coarse = matchMedia('(pointer: coarse)').matches
+    const width = Math.round(Math.min(coarse ? 160 : 200, rect.width * 0.4))
+    if (width < 80) { this.el.thumb.hidden = true; return }
+    const f = paintStoryboard(this.el.thumb, sb, target, width)
+    const half = f.width / 2 + 2
+    const x = Math.max(half, Math.min(rect.width - half, e.clientX - rect.left))
+    this.el.thumb.style.left = `${x}px`
+    this.el.thumb.hidden = false
   }
 
   // ── Commandes visibles / masquées ──────────────────────────────────────

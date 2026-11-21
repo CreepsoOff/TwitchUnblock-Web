@@ -1737,3 +1737,60 @@ export async function getVodMarkers(id) {
   const started = data?.video?.broadcastType === 'ARCHIVE' ? Date.parse(data.video.createdAt) : NaN
   return { chapters, muted, broadcastStart: Number.isFinite(started) ? started : null }
 }
+
+/**
+ * Storyboard d'une VOD : planches de vignettes de Twitch, pour l'aperçu au
+ * survol de la barre de progression et des cartes de VOD. Servi par la
+ * fonction Vercel du site (api/storyboard.mjs), car le JSON de Twitch n'a pas
+ * d'en-tête CORS. Rien ne passe par le Worker ni par les relais vidéo.
+ * Hébergé ailleurs (Cloudflare Pages, Docker), la route n'existe pas : null,
+ * et le site fonctionne comme avant, sans vignette.
+ * → { sheets, cols, rows, w, h, interval, count } ou null (VOD en cours…).
+ */
+const storyboards = new Map()
+export function getVodStoryboard(id) {
+  const key = String(id)
+  if (!/^\d{1,15}$/.test(key)) return Promise.resolve(null)
+  let p = storyboards.get(key)
+  if (!p) {
+    p = fetch(`/api/storyboard?id=${key}`)
+      .then((res) => (res.ok && /json/i.test(res.headers.get('content-type') || '') ? res.json() : null))
+      .then((j) => j?.storyboard ?? null, () => null)
+    storyboards.set(key, p)
+    // Échec réseau ou VOD encore en cours : redemandé au prochain survol
+    // (après 5 min), pas à chaque mouvement de souris.
+    p.then((sb) => { if (!sb) setTimeout(() => storyboards.delete(key), 5 * 60_000) })
+  }
+  return p
+}
+
+/** Position d'une vignette du storyboard pour l'instant `sec`, mise à
+ *  l'échelle pour une largeur affichée `width` : de quoi remplir le style
+ *  d'un élément (background-image, -position et -size). */
+export function storyboardFrame(sb, sec, width) {
+  const idx = Math.max(0, Math.min(sb.count - 1, Math.floor(sec / sb.interval)))
+  const perSheet = sb.cols * sb.rows
+  const sheet = sb.sheets[Math.min(sb.sheets.length - 1, Math.floor(idx / perSheet))]
+  const cell = idx % perSheet
+  const scale = width / sb.w
+  return {
+    url: sheet,
+    width: Math.round(sb.w * scale),
+    height: Math.round(sb.h * scale),
+    x: -Math.round((cell % sb.cols) * sb.w * scale),
+    y: -Math.round(Math.floor(cell / sb.cols) * sb.h * scale),
+    sizeW: Math.round(sb.cols * sb.w * scale),
+    sizeH: Math.round(sb.rows * sb.h * scale),
+  }
+}
+
+/** Applique storyboardFrame à un élément. */
+export function paintStoryboard(el, sb, sec, width) {
+  const f = storyboardFrame(sb, sec, width)
+  el.style.width = `${f.width}px`
+  el.style.height = `${f.height}px`
+  el.style.backgroundImage = `url("${f.url}")`
+  el.style.backgroundPosition = `${f.x}px ${f.y}px`
+  el.style.backgroundSize = `${f.sizeW}px ${f.sizeH}px`
+  return f
+}

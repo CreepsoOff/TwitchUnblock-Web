@@ -6,6 +6,6 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/((?!assets/|stats(?:/|$))[^.]+)", "destination": "/" }
+    { "source": "/((?!assets/|api/|stats(?:/|$))[^.]+)", "destination": "/" }
   ]
 }
