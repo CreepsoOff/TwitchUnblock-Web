@@ -184,6 +184,7 @@ async function boot() {
   // Points, coffres, paris et drops du compte en direct (extension 0.3.0).
   startAccountEvents()
   setupPlayer()
+  setupCardPreviews()
   // Erreurs non rattrapées du site : dans le journal des erreurs.
   captureGlobalErrors()
   setupMulti()
@@ -1598,6 +1599,82 @@ function streamCard(s, { pinnable = false, hideable = false, hideCat = true, sho
         </div>
       </div>
     </a>`
+}
+
+// ── Aperçu au survol des cartes ─────────────────────────────────────────────
+// À la souris seulement (au doigt, un survol « colle » au dernier toucher), après
+// un court délai pour ne rien déclencher quand le pointeur ne fait que passer.
+// - Carte de direct : sa miniature est remplacée par l'image du moment
+//   (Twitch la renouvelle toutes les quelques minutes). Pas de vidéo : chaque
+//   aperçu en direct ferait des dizaines de requêtes au Worker.
+// - Carte de VOD : la position de la souris sur la miniature fait défiler les
+//   vignettes de la VOD (storyboard, api.getVodStoryboard), avec un repère.
+const CARD_PREVIEW_DELAY = 350
+function setupCardPreviews() {
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return
+  let cur = null
+  const stop = () => {
+    if (!cur) return
+    clearTimeout(cur.timer)
+    cur.layer?.remove()
+    cur = null
+  }
+  const paint = () => {
+    if (!cur?.sb || !cur.layer) return
+    const rect = cur.thumb.getBoundingClientRect()
+    if (!rect.width) return
+    const frac = Math.max(0, Math.min(1, (cur.x - rect.left) / rect.width))
+    const meta = state.vodMeta.get(cur.id)
+    const total = meta?.length || store.getLength(cur.id) || cur.sb.count * cur.sb.interval
+    api.paintStoryboard(cur.img, cur.sb, frac * total, rect.width)
+    cur.bar.style.width = `${(frac * 100).toFixed(2)}%`
+  }
+  const start = (c) => {
+    if (c.card.matches('.stream-card')) {
+      const img = c.thumb.querySelector(':scope > img')
+      if (!img?.src) return
+      const base = img.dataset.base || img.src
+      img.dataset.base = base
+      const fresh = `${base}${base.includes('?') ? '&' : '?'}tu=${Math.floor(Date.now() / 60_000)}`
+      if (img.src === fresh) return
+      const pre = new Image()
+      pre.onload = () => { img.src = fresh }
+      pre.src = fresh
+      return
+    }
+    api.getVodStoryboard(c.id).then((sb) => {
+      if (cur !== c || !sb) return
+      c.sb = sb
+      c.layer = document.createElement('div')
+      c.layer.className = 'card-scrub'
+      c.layer.innerHTML = '<div class="card-scrub-img"></div><div class="card-scrub-bar"><span></span></div>'
+      c.img = c.layer.firstChild
+      c.bar = c.layer.querySelector('.card-scrub-bar > span')
+      c.thumb.appendChild(c.layer)
+      paint()
+    })
+  }
+  document.addEventListener('pointerover', (e) => {
+    if (e.pointerType && e.pointerType !== 'mouse') return
+    const card = e.target.closest?.('.stream-card[data-live], .vod-card[data-vod], .rail-card[data-vod]')
+    if (card === cur?.card) return
+    stop()
+    const thumbEl = card?.querySelector(':scope > .thumb')
+    if (!thumbEl) return
+    const c = { card, thumb: thumbEl, id: card.dataset.vod ?? null, x: e.clientX, sb: null, layer: null }
+    cur = c
+    c.timer = setTimeout(() => { if (cur === c) start(c) }, CARD_PREVIEW_DELAY)
+  })
+  document.addEventListener('pointermove', (e) => {
+    if (!cur) return
+    cur.x = e.clientX
+    paint()
+  }, { passive: true })
+  // Page changée sous la souris (clic sur la carte), fenêtre quittée.
+  document.documentElement.addEventListener('mouseleave', stop)
+  window.addEventListener('blur', stop)
+  window.addEventListener('popstate', stop)
+  document.addEventListener('click', (e) => { if (e.target.closest?.('a.card')) stop() }, true)
 }
 
 function vodCard(v, streamer) {
@@ -5563,6 +5640,11 @@ async function openVod(id, preset, { keepPlaylist = false, at = null, fromLive =
     player.setChapters(m.chapters)
     player.setMuted(m.muted)
     player.setBroadcastStart(m.broadcastStart)
+  }).catch(() => {})
+  // Vignettes au survol de la barre de progression (storyboard de Twitch).
+  api.getVodStoryboard(vodId).then((sb) => {
+    if (state.watch !== token) return
+    player.setStoryboard(sb)
   }).catch(() => {})
   chat.openVod({ videoId: vodId, channelId: meta?.owner?.id ?? null, channelLogin: meta?.owner?.login ?? null, startAt })
   if (startAt && !at) toast(t('resume_at', { t: formatClock(startAt) }))

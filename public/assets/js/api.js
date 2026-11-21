@@ -1737,3 +1737,98 @@ export async function getVodMarkers(id) {
   const started = data?.video?.broadcastType === 'ARCHIVE' ? Date.parse(data.video.createdAt) : NaN
   return { chapters, muted, broadcastStart: Number.isFinite(started) ? started : null }
 }
+
+/**
+ * Storyboard d'une VOD : planches de vignettes de Twitch, pour l'aperçu au
+ * survol de la barre de progression et des cartes de VOD. L'adresse vient de
+ * GQL (`seekPreviewsURL`) ; son JSON, sur le CloudFront de Twitch, n'a pas
+ * d'en-tête CORS pour une autre origine que twitch.tv : il passe par le même
+ * /api/proxy que la lecture (relais d'abord, puis Worker), qui accepte déjà
+ * les storyboards. Une requête par VOD, gardée en mémoire. Les planches JPG,
+ * elles, se chargent directement (une image n'a pas besoin de CORS).
+ * → { sheets, cols, rows, w, h, interval, count } ou null (VOD encore en
+ * cours d'enregistrement : Twitch n'a pas encore de storyboard).
+ */
+const storyboards = new Map()
+export function getVodStoryboard(id) {
+  const key = String(id)
+  if (!/^\d{1,15}$/.test(key)) return Promise.resolve(null)
+  let p = storyboards.get(key)
+  if (!p) {
+    p = loadStoryboard(key).catch(() => null)
+    storyboards.set(key, p)
+    // Échec ou VOD en cours : redemandé au prochain survol après 5 min, pas à
+    // chaque mouvement de souris.
+    p.then((sb) => { if (!sb) setTimeout(() => storyboards.delete(key), 5 * 60_000) })
+  }
+  return p
+}
+
+async function loadStoryboard(id) {
+  const data = await gql('query($id: ID!) { video(id: $id) { status seekPreviewsURL } }', { id })
+  const video = data?.video
+  if (!video?.seekPreviewsURL || video.status === 'RECORDING') return null
+  const info = new URL(video.seekPreviewsURL)
+  if (info.protocol !== 'https:' || !info.pathname.endsWith('-info.json')) return null
+  for (const base of [...new Set([playbackBase(), relayFallback()])].filter(Boolean)) {
+    let res
+    try {
+      res = await fetch(`${base}/api/proxy?url=${encodeURIComponent(info.href)}&isVod=false`)
+    } catch {
+      continue
+    }
+    // Relais qui refuse l’origine, Worker à court de quota : le suivant.
+    if (!res.ok) continue
+    return pickStoryboard(JSON.parse(await res.text()), info)
+  }
+  return null
+}
+
+/** Planche « high » de préférence (vignettes plus nettes), sinon « low ». */
+function pickStoryboard(list, info) {
+  if (!Array.isArray(list)) return null
+  const ok = (s) => s && Array.isArray(s.images) && s.images.length
+    && [s.count, s.cols, s.rows, s.width, s.height, s.interval].every((n) => Number(n) > 0)
+  const s = list.find((x) => x?.quality === 'high' && ok(x)) ?? list.find(ok)
+  if (!s) return null
+  return {
+    sheets: s.images.map((name) => new URL(String(name), info).href),
+    cols: Number(s.cols),
+    rows: Number(s.rows),
+    w: Number(s.width),
+    h: Number(s.height),
+    interval: Number(s.interval),
+    count: Number(s.count),
+  }
+}
+
+/** Position d'une vignette du storyboard pour l'instant `sec`, mise à
+ *  l'échelle pour une largeur affichée `width` : de quoi remplir le style
+ *  d'un élément (background-image, -position et -size). */
+export function storyboardFrame(sb, sec, width) {
+  const idx = Math.max(0, Math.min(sb.count - 1, Math.floor(sec / sb.interval)))
+  const perSheet = sb.cols * sb.rows
+  const sheet = sb.sheets[Math.min(sb.sheets.length - 1, Math.floor(idx / perSheet))]
+  const cell = idx % perSheet
+  const scale = width / sb.w
+  return {
+    url: sheet,
+    width: Math.round(sb.w * scale),
+    height: Math.round(sb.h * scale),
+    x: -Math.round((cell % sb.cols) * sb.w * scale),
+    y: -Math.round(Math.floor(cell / sb.cols) * sb.h * scale),
+    sizeW: Math.round(sb.cols * sb.w * scale),
+    sizeH: Math.round(sb.rows * sb.h * scale),
+  }
+}
+
+/** Applique storyboardFrame à un élément. */
+export function paintStoryboard(el, sb, sec, width) {
+  const f = storyboardFrame(sb, sec, width)
+  el.style.width = `${f.width}px`
+  el.style.height = `${f.height}px`
+  el.style.backgroundImage = `url("${f.url}")`
+  el.style.backgroundPosition = `${f.x}px ${f.y}px`
+  el.style.backgroundSize = `${f.sizeW}px ${f.sizeH}px`
+  return f
+}
