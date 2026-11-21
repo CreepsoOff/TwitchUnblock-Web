@@ -1,0 +1,31 @@
+# Worker de la copie ublockd (site sur Vercel : twitchunblock-web-khaki.vercel.app).
+# Fichier à part pour ne pas toucher au wrangler.toml de l'original (les mises à
+# jour de MXFia19/TwitchUnblock-Web se récupèrent sans conflit).
+#
+# Déploiement :  npx wrangler deploy -c wrangler.ublockd.toml
+# Le site l'utilise via public/config.js (apiUrl). Sans relais vidéo : toute la
+# lecture passe par ce Worker (quota gratuit : 100 000 requêtes par jour).
+name = "twitchunblock-ublockd"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+keep_vars = true
+workers_dev = true
+
+# Notifications de live (Web Push) : comme l'original.
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+# Comptage d'usage : seulement les visites de ce site.
+SITE_ORIGINS = "https://twitchunblock-web-khaki.vercel.app"
+
+[observability.logs]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "twitchunblock-ublockd"
+database_id = "86c32a25-820f-41b7-99e7-49611c7a3e0e"
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
