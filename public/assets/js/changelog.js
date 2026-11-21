@@ -6,6 +6,23 @@
 
 export const CHANGELOG = [
   {
+    version: '2026.11.22a',
+    items: {
+      fr: [
+        'Vignettes au survol, merci à CreepsoOff : sur la barre de progression d’une VOD, l’image du moment visé s’affiche au-dessus de l’heure, comme sur Twitch (en glissant au doigt aussi). À la souris, une carte de VOD fait défiler les images de la VOD quand tu passes dessus, et une carte de live montre l’image du moment.',
+      ],
+      en: [
+        'Hover thumbnails, thanks to CreepsoOff: on a VOD’s progress bar, the frame at the moment you point at shows above the time, like on Twitch (when dragging with a finger too). With a mouse, a VOD card scrubs through the VOD’s frames as you move across it, and a live card shows the current frame.',
+      ],
+      es: [
+        'Miniaturas al pasar el ratón, gracias a CreepsoOff: en la barra de progreso de un VOD, la imagen del momento señalado aparece encima de la hora, como en Twitch (también al deslizar con el dedo). Con el ratón, una tarjeta de VOD recorre las imágenes del VOD al pasar por encima, y una tarjeta de directo muestra la imagen del momento.',
+      ],
+      ru: [
+        'Миниатюры при наведении — спасибо CreepsoOff: на полосе прогресса VOD над временем появляется кадр того момента, на который вы указываете, как на Twitch (и при перетаскивании пальцем). Мышью: карточка VOD прокручивает кадры записи, когда вы ведёте по ней курсором, а карточка трансляции показывает текущий кадр.',
+      ],
+    },
+  },
+  {
     version: '2026.11.21b',
     items: {
       fr: [
