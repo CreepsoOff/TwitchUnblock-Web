@@ -2923,7 +2923,7 @@ export class Player {
 
   /** Storyboard de la VOD (api.getVodStoryboard) : vignette au-dessus de
    *  l'infobulle, comme sur Twitch. null : pas de vignette (direct, VOD en
-   *  cours d'enregistrement, site hébergé sans la fonction Vercel). */
+   *  cours d'enregistrement, storyboard illisible). */
   setStoryboard(sb) {
     this.storyboard = sb ?? null
     this.storyboardWarm = false

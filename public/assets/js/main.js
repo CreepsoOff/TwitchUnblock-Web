@@ -5641,7 +5641,7 @@ async function openVod(id, preset, { keepPlaylist = false, at = null, fromLive =
     player.setMuted(m.muted)
     player.setBroadcastStart(m.broadcastStart)
   }).catch(() => {})
-  // Vignettes au survol de la barre de progression (fonction Vercel).
+  // Vignettes au survol de la barre de progression (storyboard de Twitch).
   api.getVodStoryboard(vodId).then((sb) => {
     if (state.watch !== token) return
     player.setStoryboard(sb)
