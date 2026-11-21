@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "icons": {
@@ -24,8 +24,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://twitchunblock.vercel.app/*",
-        "https://test2-git-test-17d298-mxfia19s-projects.vercel.app/*"
+        "https://twitchunblock-web.pages.dev/*",
+        "https://test-17d298.twitchunblock-web.pages.dev/*"
       ],
       "js": ["content.js"],
       "run_at": "document_start",
@@ -43,7 +43,7 @@
     "https://usher.ttvnw.net/*",
     "https://*.hls.ttvnw.net/*",
     "https://*.playlist.ttvnw.net/*",
-    "https://twitchunblock.vercel.app/*",
-    "https://test2-git-test-17d298-mxfia19s-projects.vercel.app/*"
+    "https://twitchunblock-web.pages.dev/*",
+    "https://test-17d298.twitchunblock-web.pages.dev/*"
   ]
 }

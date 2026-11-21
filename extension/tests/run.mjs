@@ -18,8 +18,8 @@ const MANIFEST = JSON.parse(readFileSync(join(DIR, "manifest.json"), "utf8"));
 
 // --- Données simulées ---------------------------------------------------------
 
-const SITE = "https://twitchunblock.vercel.app";
-const PREVIEW = "https://test2-git-test-17d298-mxfia19s-projects.vercel.app";
+const SITE = "https://twitchunblock-web.pages.dev";
+const PREVIEW = "https://test-17d298.twitchunblock-web.pages.dev";
 const EXT_ID = "testextensionid";
 const EXT_BASE = "chrome-extension://" + EXT_ID + "/";
 const AUTH_TOKEN = "zq7secretauthtoken0123456789xy";
@@ -877,16 +877,20 @@ test("hello depuis le site : protocole, version, navigateur", async () => {
   const res = await h.op("hello", {});
   assert.deepEqual(res, { ok: true, data: { protocol: 1, version: MANIFEST.version, enabled: true, browser: "chrome" } });
   const res2 = await h.deliver({ tuConnect: 1, kind: "op", id: "x", op: "hello", args: {} }, h.siteSender({ url: PREVIEW + "/", origin: PREVIEW }));
-  assert.equal(code(res2), "ok", "aperçu Vercel de la branche de test accepté");
+  assert.equal(code(res2), "ok", "aperçu de la branche de test accepté");
 });
 
 test("mauvaises origines, cadres ou expéditeurs : aucune réponse, aucune requête", async () => {
   const h = loadBackground();
   const bad = [
     h.siteSender({ url: "https://evil.example/", origin: "https://evil.example" }),
-    h.siteSender({ url: "https://twitchunblock.vercel.app.evil.example/", origin: "https://twitchunblock.vercel.app.evil.example" }),
-    h.siteSender({ url: "http://twitchunblock.vercel.app/", origin: "http://twitchunblock.vercel.app" }),
-    h.siteSender({ url: "https://other-project.vercel.app/", origin: "https://other-project.vercel.app" }),
+    h.siteSender({ url: "https://twitchunblock-web.pages.dev.evil.example/", origin: "https://twitchunblock-web.pages.dev.evil.example" }),
+    h.siteSender({ url: "http://twitchunblock-web.pages.dev/", origin: "http://twitchunblock-web.pages.dev" }),
+    h.siteSender({ url: "https://other-project.pages.dev/", origin: "https://other-project.pages.dev" }),
+    // Autre aperçu du même projet Pages (un déploiement précis) : pas dans la liste.
+    h.siteSender({ url: "https://0a1b2c3d.twitchunblock-web.pages.dev/", origin: "https://0a1b2c3d.twitchunblock-web.pages.dev" }),
+    // Ancienne adresse (Vercel, compte en pause depuis le 21/11/2026) : retirée en 0.4.2.
+    h.siteSender({ url: "https://twitchunblock.vercel.app/", origin: "https://twitchunblock.vercel.app" }),
     h.siteSender({ url: "http://localhost:8787/", origin: "http://localhost:8787" }),
     h.siteSender({ frameId: 1 }),
     h.siteSender({ frameId: undefined }),
@@ -2403,7 +2407,9 @@ test("manifeste : origines, permissions et arrière-plan attendus", () => {
   // 0.4.0 (ouvrir twitch.tv sur le site) : rien de plus non plus — redirect.js
   // s'enregistre avec « scripting » et l'accès à *.twitch.tv déjà là.
   // 0.4.1 (correctif : l'onglet du jeton d'intégrité garde ?tu=0) : rien de plus.
-  assert.equal(MANIFEST.version, "0.4.1");
+  // 0.4.2 (le site passe sur Cloudflare Pages) : ses deux origines changent,
+  // rien de plus.
+  assert.equal(MANIFEST.version, "0.4.2");
   // 0.3.0 : plus de « tabs » — les accès d'hôte suffisent pour chercher les
   // onglets du site et de twitch.tv par leur adresse.
   assert.deepEqual([...MANIFEST.permissions].sort(), ["cookies", "scripting", "storage"]);
@@ -2411,9 +2417,9 @@ test("manifeste : origines, permissions et arrière-plan attendus", () => {
   const pub = publishedManifest(MANIFEST);
   assert.equal(PREVIEW_ORIGIN, PREVIEW);
   assert.deepEqual(pub.content_scripts[0].matches, [SITE + "/*"]);
-  assert.ok(!JSON.stringify(pub).includes("test2-git"));
+  assert.ok(!JSON.stringify(pub).includes("test-17d298."));
   assert.ok(pub.host_permissions.includes(SITE + "/*"));
-  assert.ok(!JSON.stringify(firefoxManifest(pub)).includes("test2-git"));
+  assert.ok(!JSON.stringify(firefoxManifest(pub)).includes("test-17d298."));
   assert.deepEqual(MANIFEST.content_scripts[0].matches, [SITE + "/*", PREVIEW + "/*"], "le dépôt garde l'aperçu pour les essais");
   assert.equal(MANIFEST.declarative_net_request, undefined);
   assert.equal(MANIFEST.optional_permissions, undefined);
@@ -2435,7 +2441,7 @@ test("manifeste : origines, permissions et arrière-plan attendus", () => {
   assert.ok(popup.includes("api.runtime.getManifest().host_permissions"), "popup.js lit les accès dans le manifeste");
   for (const origin of MANIFEST.host_permissions) assert.ok(!popup.includes(JSON.stringify(origin)), "popup.js : " + origin + " en dur");
   const background = readFileSync(join(DIR, "background.js"), "utf8");
-  assert.ok(!background.includes("test2-git"), "background.js : origines lues dans le manifeste");
+  assert.ok(!background.includes("pages.dev") && !background.includes("vercel.app"), "background.js : origines lues dans le manifeste");
   const en = JSON.parse(readFileSync(join(DIR, "_locales", "en", "messages.json"), "utf8"));
   for (const lang of ["fr", "es", "ru", "it", "ja"]) {
     const other = JSON.parse(readFileSync(join(DIR, "_locales", lang, "messages.json"), "utf8"));

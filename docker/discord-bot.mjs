@@ -1740,7 +1740,7 @@ export function startDiscordBridge({
   api = 'https://discord.com/api/v10',
   gateway = 'wss://gateway.discord.gg/?v=10&encoding=json',
   github = 'https://api.github.com',
-  site = 'https://twitchunblock.vercel.app',
+  site = 'https://twitchunblock-web.pages.dev',
   repos = { ios: 'MXFia19/TwitchUnblock', web: 'MXFia19/TwitchUnblock-Web', android: 'MXFia19/TwitchUnblock-Android' },
   fallbacks = ['https://test2-fallback.vxcraftmanpetit.workers.dev'],
   testSource = 'https://raw.githubusercontent.com/MXFia19/TwitchUnblock/test-17d298/apps-test.json',

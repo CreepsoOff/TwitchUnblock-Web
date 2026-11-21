@@ -6,6 +6,31 @@
 
 export const CHANGELOG = [
   {
+    version: '2026.11.21b',
+    items: {
+      fr: [
+        'Le site déménage : il est maintenant sur twitchunblock-web.pages.dev. L’ancien hébergeur l’a mis en pause après le dépassement de son quota gratuit du mois. Ajoute la nouvelle adresse à tes favoris.',
+        'Les réglages et l’historique gardés dans le navigateur restent attachés à l’ancienne adresse : reconnecte-toi avec ton compte Twitch pour retrouver ce qui était sauvegardé sur ton compte, et réactive les notifications des lives si tu t’en servais.',
+        'TwitchUnblock Connect 0.4.2 : l’extension marche sur la nouvelle adresse. Mets-la à jour (Firefox le fait tout seul une fois la version validée par Mozilla ; sur Chrome, Edge ou Brave, installe la nouvelle version depuis GitHub).',
+      ],
+      en: [
+        'The website moved: it’s now at twitchunblock-web.pages.dev. Its old host paused it after it went over its free monthly quota. Bookmark the new address.',
+        'Settings and history saved in the browser stay with the old address: log in with your Twitch account again to get back what was saved to your account, and turn live notifications back on if you used them.',
+        'TwitchUnblock Connect 0.4.2: the extension works on the new address. Update it (Firefox does it on its own once Mozilla approves the version; on Chrome, Edge or Brave, install the new version from GitHub).',
+      ],
+      es: [
+        'El sitio se muda: ahora está en twitchunblock-web.pages.dev. Su antiguo alojamiento lo pausó tras superar su cuota gratuita del mes. Guarda la nueva dirección en tus favoritos.',
+        'Los ajustes y el historial guardados en el navegador se quedan en la dirección antigua: vuelve a iniciar sesión con tu cuenta de Twitch para recuperar lo que estaba guardado en tu cuenta, y vuelve a activar las notificaciones de directos si las usabas.',
+        'TwitchUnblock Connect 0.4.2: la extensión funciona en la nueva dirección. Actualízala (Firefox lo hace solo cuando Mozilla aprueba la versión; en Chrome, Edge o Brave, instala la nueva versión desde GitHub).',
+      ],
+      ru: [
+        'Сайт переехал: теперь он на twitchunblock-web.pages.dev. Прежний хостинг приостановил его после превышения бесплатного месячного лимита. Добавьте новый адрес в закладки.',
+        'Настройки и история, сохранённые в браузере, остались на старом адресе: войдите снова через аккаунт Twitch, чтобы вернуть то, что было сохранено в аккаунте, и заново включите уведомления о трансляциях, если пользовались ими.',
+        'TwitchUnblock Connect 0.4.2: расширение работает на новом адресе. Обновите его (Firefox сделает это сам, когда Mozilla одобрит версию; в Chrome, Edge или Brave установите новую версию с GitHub).',
+      ],
+    },
+  },
+  {
     version: '2026.11.21a',
     items: {
       fr: [

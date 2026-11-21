@@ -1,9 +1,9 @@
 # TwitchUnblock Connect — Privacy policy
 
-_Last updated: 2026-10-27_
+_Last updated: 2026-11-21_
 
 TwitchUnblock Connect is a browser extension that lets the TwitchUnblock website
-(<https://twitchunblock.vercel.app>) use the Twitch session of this browser for a closed list
+(<https://twitchunblock-web.pages.dev>) use the Twitch session of this browser for a closed list
 of actions. This page explains what data the extension handles, where it goes, and what it
 never does.
 
@@ -55,7 +55,7 @@ cookies or tokens. This exchange happens inside your browser.
 
 The TwitchUnblock website itself (not this extension) keeps an anonymous usage count, which
 can include whether the extension is installed, its version and the browser; it is described
-on the website's statistics page (<https://twitchunblock.vercel.app/stats>).
+on the website's statistics page (<https://twitchunblock-web.pages.dev/stats>).
 
 ## Data stored on your device
 

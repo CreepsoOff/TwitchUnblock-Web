@@ -82,9 +82,10 @@ published one.
 
 - Log in to **twitch.tv** in this browser (the session is twitch.tv's `auth-token`
   cookie; the extension reads it again on every use).
-- Open the site (`https://twitchunblock.vercel.app`, or the test branch's Vercel
-  preview with the repository's `extension/` folder: the published packages only know the
-  production site): it detects the extension on its own.
+- Open the site (`https://twitchunblock-web.pages.dev`, or the test branch's preview,
+  `https://test-17d298.twitchunblock-web.pages.dev`, with the repository's `extension/`
+  folder: the published packages only know the production site): it detects the extension
+  on its own.
 
 ## The extension's window
 

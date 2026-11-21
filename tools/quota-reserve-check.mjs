@@ -293,7 +293,7 @@ test('Site : l’avis du Worker met les envois automatiques en pause jusqu’à 
     get length() { return storage.size },
   }
   globalThis.window ??= { addEventListener() {}, removeEventListener() {}, dispatchEvent() { return true } }
-  globalThis.location ??= { reload() {}, origin: 'https://twitchunblock.vercel.app' }
+  globalThis.location ??= { reload() {}, origin: 'https://twitchunblock-web.pages.dev' }
   const realFetch = globalThis.fetch
   globalThis.fetch = async () => json({})
   try {

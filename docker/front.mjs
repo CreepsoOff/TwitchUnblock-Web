@@ -78,8 +78,11 @@ const proxyPath = (pathname) => plainPath(pathname).replace(/\/+$/, '') === '/ap
 //   de « Worker personnel » (réglages) ; « * » : tout le monde ; sinon la
 //   liste, séparée par des virgules (« * » dans un nom en remplace une
 //   partie), à la place du site officiel. Le site officiel : les mêmes
-//   adresses que relay/docker-compose.yml.
-const OFFICIAL_ORIGINS = ['https://twitchunblock.vercel.app', 'https://test2-fawn-eta.vercel.app',
+//   adresses que relay/docker-compose.yml : Cloudflare Pages (le site et ses
+//   aperçus, dont test-17d298.twitchunblock-web.pages.dev) depuis le
+//   21/11/2026, et Vercel pour le jour où le compte revient.
+const OFFICIAL_ORIGINS = ['https://twitchunblock-web.pages.dev', 'https://*.twitchunblock-web.pages.dev',
+  'https://twitchunblock.vercel.app', 'https://test2-fawn-eta.vercel.app',
   'https://twitchunblock-*-mxfia19s-projects.vercel.app', 'https://test2-*-mxfia19s-projects.vercel.app']
 const ORIGINS_SETTING = String(process.env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean)
 const ANY_ORIGIN = ORIGINS_SETTING.includes('*')

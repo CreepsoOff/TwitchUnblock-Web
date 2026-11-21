@@ -1,7 +1,7 @@
 # Install TwitchUnblock Connect
 
 TwitchUnblock Connect is a small extension for desktop browsers. It lets the
-[TwitchUnblock website](https://twitchunblock.vercel.app) use the Twitch session of your
+[TwitchUnblock website](https://twitchunblock-web.pages.dev) use the Twitch session of your
 browser, so that while you watch a live on the site you can:
 
 - earn channel points (balance and watch streak above the chat),
@@ -68,7 +68,7 @@ from Firefox Add-ons once.
 ## Use it
 
 1. Log in to [twitch.tv](https://www.twitch.tv) in the same browser.
-2. Open [twitchunblock.vercel.app](https://twitchunblock.vercel.app) → **Settings →
+2. Open [twitchunblock-web.pages.dev](https://twitchunblock-web.pages.dev) → **Settings →
    TwitchUnblock Connect**: it should show the extension as installed, with your account.
 3. Watch a live: your points balance shows above the chat, chests are claimed for you, and
    predictions, polls, rewards and drops get their buttons. With 0.3.0: **Clip** next to

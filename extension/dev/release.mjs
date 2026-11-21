@@ -12,7 +12,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const PREVIEW_ORIGIN = "https://test2-git-test-17d298-mxfia19s-projects.vercel.app";
+// Aperçu Cloudflare Pages de la branche de test (avant le 21/11/2026 :
+// l'aperçu Vercel, test2-git-test-17d298-mxfia19s-projects.vercel.app).
+export const PREVIEW_ORIGIN = "https://test-17d298.twitchunblock-web.pages.dev";
 
 /** Manifeste du dépôt → manifeste publié : rien de l'aperçu. */
 export function publishedManifest(m) {
@@ -33,7 +35,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const path = join(resolve(dir), "manifest.json");
   const manifest = publishedManifest(JSON.parse(readFileSync(path, "utf8")));
   if (JSON.stringify(manifest).includes(new URL(PREVIEW_ORIGIN).host)) {
-    console.error("::error::l'aperçu Vercel est encore dans le manifeste publié");
+    console.error("::error::l'aperçu de la branche de test est encore dans le manifeste publié");
     process.exit(1);
   }
   writeFileSync(path, JSON.stringify(manifest, null, 2) + "\n");

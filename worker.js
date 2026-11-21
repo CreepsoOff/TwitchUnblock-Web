@@ -1536,7 +1536,9 @@ const USAGE_NEW_PER_DAY = 1000;
 const PLATFORMS = ['ios', 'web', 'tvos', 'android'];
 // Le site officiel : un ping « web » venu d'ailleurs (copie locale, tests,
 // préversions) n'est pas compté. L'app iOS n'envoie pas d'en-tête Origin.
-let USAGE_ORIGINS = ['https://twitchunblock.vercel.app', 'https://test2-fawn-eta.vercel.app'];
+// Sur Cloudflare Pages depuis le 21/11/2026 (compte Vercel en pause) ; les
+// adresses Vercel restent pour le jour où le compte revient.
+let USAGE_ORIGINS = ['https://twitchunblock-web.pages.dev', 'https://twitchunblock.vercel.app', 'https://test2-fawn-eta.vercel.app'];
 // Navigateurs automatisés et robots qui exécutent le JavaScript.
 const BOT_UA = /headless|bot\b|crawler|spider|slurp|playwright|puppeteer|selenium|phantomjs|lighthouse|preview/i;
 // Ce que le ping peut ajouter (pour /stats) : langue de l'interface, type
@@ -5495,7 +5497,7 @@ async function vapidAuthorization(endpoint, keys) {
     const jwt = await vapidJwt(keys, {
         aud,
         exp: Math.floor(Date.now() / 1000) + 12 * 3600,
-        sub: 'https://twitchunblock.vercel.app',
+        sub: 'https://twitchunblock-web.pages.dev',
     });
     const value = `vapid t=${jwt}, k=${keys.pub}`;
     vapidJwts.set(aud, { value, pub: keys.pub, until: Date.now() + 11 * 3600 * 1000 });

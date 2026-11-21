@@ -39,11 +39,12 @@ services:
       # en 502, sans un mot dans le journal.
       PUBLIC_ORIGIN: "https://${RELAY_DOMAIN:?set RELAY_DOMAIN in the .env file (README, Video relay)}"
       # Sites qui peuvent s'en servir (les autres sont refusés) : le site
-      # officiel (nouvelle et ancienne adresse) et ses aperçus de test sur
-      # Vercel. Remplaçable par ALLOWED_ORIGINS=… dans le fichier .env.
+      # officiel sur Cloudflare Pages et ses aperçus de test (depuis le
+      # 21/11/2026), puis ses adresses Vercel (compte en pause). Remplaçable
+      # par ALLOWED_ORIGINS=… dans le fichier .env.
       # L'app des TV LG (installée, elle tourne depuis file://) passe dans
       # tous les cas : docker/relay.mjs, tvAppOk.
-      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-https://twitchunblock.vercel.app,https://test2-fawn-eta.vercel.app,https://twitchunblock-*-mxfia19s-projects.vercel.app,https://test2-*-mxfia19s-projects.vercel.app}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-https://twitchunblock-web.pages.dev,https://*.twitchunblock-web.pages.dev,https://twitchunblock.vercel.app,https://test2-fawn-eta.vercel.app,https://twitchunblock-*-mxfia19s-projects.vercel.app,https://test2-*-mxfia19s-projects.vercel.app}"
       # Worker dont le relais publie les notifications ntfy de l'app iOS
       # (ntfy.sh refuse les adresses de Cloudflare). Vide = coupé.
       NTFY_WORKER: "${NTFY_WORKER-https://test2.kurzmathis4.workers.dev}"

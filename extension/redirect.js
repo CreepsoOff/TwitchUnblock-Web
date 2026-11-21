@@ -13,7 +13,7 @@
 // ---------------------------------------------------------------------------
 
 (() => {
-  const SITE = "https://twitchunblock.vercel.app";
+  const SITE = "https://twitchunblock-web.pages.dev";
   // Premiers segments de Twitch qui ne sont pas des chaînes.
   const RESERVED = new Set([
     "activate", "bits", "broadcast", "checkout", "creatorcamp", "dashboard", "downloads",

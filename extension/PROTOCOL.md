@@ -39,13 +39,14 @@ extension to the page), tells in `hq.master` whether Twitch serves ads to the ac
   no generic relay.
 - The content script is only injected on the allowed origins, top frame only
   (`all_frames: false`):
-  - `https://twitchunblock.vercel.app/*` (production)
-  - `https://test2-git-test-17d298-mxfia19s-projects.vercel.app/*` (Vercel preview of
-    the test branch, protected by Vercel login) — ONLY in the repository's `extension/`
-    folder, loaded by hand for tests. Since 0.3.0 the published packages (releases,
-    AMO) are built without it (`dev/release.mjs`): content script, host permissions,
-    and therefore the origins the background and the window read from the manifest.
-  Nothing else: no `*.vercel.app`, no localhost.
+  - `https://twitchunblock-web.pages.dev/*` (production, on Cloudflare Pages since
+    0.4.2; `https://twitchunblock.vercel.app` before, until Vercel paused the account)
+  - `https://test-17d298.twitchunblock-web.pages.dev/*` (Cloudflare Pages preview of
+    the test branch) — ONLY in the repository's `extension/` folder, loaded by hand for
+    tests. Since 0.3.0 the published packages (releases, AMO) are built without it
+    (`dev/release.mjs`): content script, host permissions, and therefore the origins the
+    background and the window read from the manifest.
+  Nothing else: no `*.pages.dev`, no other preview of the project, no localhost.
 - Since 0.3.0, the session also goes to `wss://hermes.twitch.tv` — Twitch's own
   WebSocket, the one twitch.tv uses — in the `authenticate` message, to receive the
   account's events (`events.keep`). Nothing else is sent there: subscriptions to the

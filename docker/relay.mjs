@@ -24,7 +24,7 @@
 //                     ne démarre pas
 //    ALLOWED_ORIGINS  sites autorisés, séparés par des virgules ; « * » dans
 //                     un nom en remplace une partie
-//                     (https://test2-*-mxfia19s-projects.vercel.app).
+//                     (https://*.twitchunblock-web.pages.dev).
 //                     Vide = tous.
 //    NTFY_WORKER      Worker dont ce serveur publie les notifications ntfy ;
 //                     sa clé publique est lue sur NTFY_WORKER/api/push/key.

@@ -2,7 +2,7 @@
 
 Watch Twitch lives and VODs in your browser, no subscription needed, with the real chat.
 
-**Website: https://twitchunblock.vercel.app**
+**Website: https://twitchunblock-web.pages.dev** (until 21 November 2026: twitchunblock.vercel.app, paused by Vercel)
 
 > 🤖 **Vibe-coded project.** Built with AI coding assistants (prompted, reviewed and tested by a human). Expect rough edges: bug reports on [Discord](https://discord.gg/cEsMRdxsVq) help a lot.
 
@@ -182,7 +182,7 @@ Without the extension, with its connection to the site turned off, or on a phone
 - A closed list of operations, every argument checked on both sides (channel login, amounts from 1 to 250,000…): no free GQL request, no generic relay. Every answer is checked again by the site before use; a malformed one is an error, never a guess.
 - Spending points (bets, paid poll votes, rewards) and voting need a real click: the site sends the request inside the click on **Confirm**, **Vote** or **Redeem**, and the extension refuses it otherwise, or when *Bets, votes and rewards from the site* is off. Its settings are only changed in its own window, never by the page.
 - Since 0.3.0, **one real click per spend**: the content script keeps the page's trusted clicks (`isTrusted`, which no page script can fake); a spend, a follow or a clip needs one less than 5 s old and not already used — the browser's activation, true for a few seconds after any click, used to let several through
-- **Content-Security-Policy** (a `<meta>` tag in `public/index.html`, so it holds on Vercel and in Docker): only the site's own scripts, hls.js from its two CDNs, and, by their SHA-256, the page's two inline scripts and the three `onerror` handlers the scripts write into the HTML; no plugins (`object-src 'none'`), no `<base>` (`base-uri 'none'`). `node tools/csp-check.mjs` checks it (`--fix` rewrites it), and the *Docker image* workflow runs it
+- **Content-Security-Policy** (a `<meta>` tag in `public/index.html`, so it holds on any host: Cloudflare Pages, Docker): only the site's own scripts, hls.js from its two CDNs, and, by their SHA-256, the page's two inline scripts and the three `onerror` handlers the scripts write into the HTML; no plugins (`object-src 'none'`), no `<base>` (`base-uri 'none'`). `node tools/csp-check.mjs` checks it (`--fix` rewrites it), and the *Docker image* workflow runs it
 - The extension limits the pace itself (reads at most once per 3 s per channel, one minute watched per 50 s, one drops pulse per 8 s, one clip per 10 s, 60 requests a minute in all; the higher-qualities playlists on their own budget, 240 a minute, read from Twitch at most once a second each).
 - The account's events (0.3.0) come from Twitch's Hermes, to which only the extension connects, with the session; the page gets a closed list of numbers and ids (balance, gain, chest claimed, prediction result, drop progress), checked by the content script and again by the site.
 - Higher qualities (0.2.0) are the one thing more that reaches the page: the account's live playlists, **rewritten** by the extension — playback tags, ad breaks without Twitch's tracking attributes, and the addresses of the video segments on Twitch's CDN. The playback token, the usher address and the playlists' own addresses stay in the extension; the page only gets a random id per quality, valid for that Twitch session (6 h at most). A segment address gives a few seconds of that live and nothing about the account. No `declarativeNetRequest`: the page gets no right to read Twitch by itself.
@@ -258,7 +258,7 @@ button in the website's top bar leads there too.
 ## Repository layout
 
 ```
-public/              The website, served as-is by Vercel (no build step)
+public/              The website, served as-is by Cloudflare Pages (no build step)
   index.html
   assets/
     styles.css
@@ -297,7 +297,7 @@ tools/slow-relay-check.mjs  Checks of the relay fallbacks: slow-relay detection 
 tools/retours-2111-check.mjs  Checks of the 21 November changes: relays blocked on the device, Bulgaria segments through the relay, delay added by the channel, the LG TV's accounts and web session check, hidden tags and the texts in every language
 tools/quota-reserve-check.mjs  Checks of the daily quota reserve: the Worker's thresholds and answers (in-memory D1), the bot sending the day's count, the website's pause and the LG TV's channel points
 .github/workflows/   Docker image (docker.yml), extension packages and release (extension.yml), LG TV app (webos.yml), daily database backup (d1-backup.yml)
-vercel.json          Website configuration on Vercel
+vercel.json          Website configuration on Vercel (former host, see Deployment)
 ```
 
 The website is plain JavaScript (ES modules) — no framework, no build step.
@@ -363,7 +363,7 @@ GET  /api/pair?id=<id>
 
 ## Usage count
 
-To know whether people actually use the website and the apps, each browser (and each iPhone or Apple TV app install) sends a small signal to the Worker at most once an hour. Numbers are public at **[/stats](https://twitchunblock.vercel.app/stats)**: unique people today, over 7 and 30 days (each one counted once per period), iOS app vs Apple TV app vs website (someone seen on several counts once: the iPhone first, then the Apple TV), logged-in accounts vs anonymous, new vs returning people, active people per day, retention (back after 1, 7 and 14 days), live health (which source served each live, failures, channel ad breaks seen), ads detected (per day, and hour by hour over the last 7 days in your own time, with the busiest hour), filtered by source — the ad-free proxies by default, the account’s stream (1440p without a sub, where ads are expected) and official Twitch apart — and by type — the channel’s own breaks (`MIDROLL`, started by the streamer or their schedule) and Twitch’s pre-rolls (`PREROLL`), from `X-TV-TWITCH-AD-ROLL-TYPE` — with a table of the last 30 days per source, devices and languages, the TwitchUnblock Connect extension (people who have it, by version and by browser), and live notifications.
+To know whether people actually use the website and the apps, each browser (and each iPhone or Apple TV app install) sends a small signal to the Worker at most once an hour. Numbers are public at **[/stats](https://twitchunblock-web.pages.dev/stats)**: unique people today, over 7 and 30 days (each one counted once per period), iOS app vs Apple TV app vs website (someone seen on several counts once: the iPhone first, then the Apple TV), logged-in accounts vs anonymous, new vs returning people, active people per day, retention (back after 1, 7 and 14 days), live health (which source served each live, failures, channel ad breaks seen), ads detected (per day, and hour by hour over the last 7 days in your own time, with the busiest hour), filtered by source — the ad-free proxies by default, the account’s stream (1440p without a sub, where ads are expected) and official Twitch apart — and by type — the channel’s own breaks (`MIDROLL`, started by the streamer or their schedule) and Twitch’s pre-rolls (`PREROLL`), from `X-TV-TWITCH-AD-ROLL-TYPE` — with a table of the last 30 days per source, devices and languages, the TwitchUnblock Connect extension (people who have it, by version and by browser), and live notifications.
 
 **Everyone, with an account, without an account**: a switch at the top of `/stats` shows every number counted per person — the tiles, platforms, active and new people per day, retention, loyalty, devices and languages, versions, the extension — for everyone, for Twitch accounts only (someone logged in, counted once across the website and the apps) or for people without an account only (a device or a browser). The Worker computes all three at once (`split.acct` and `split.anon` in `/api/stats`, same fields as the totals, which stay as they were). Active people per day are split by platform and account since 30 October 2026 (`a_<platform>_acct|anon` counters); before that, each type only has its total, shown as “Before the per-platform split”. Live health and notifications aren't per person: they stay the same, with a note. The choice is remembered in the browser.
 
@@ -384,7 +384,7 @@ Not counted: automated browsers and bots, copies of the site outside the officia
 
 The Twitch accounts in `ADMIN_TWITCH_IDS` (the site owner's) get developer tools on `/stats` (delete entries, reset, erase someone's backup and synced settings); the Worker checks the token on every admin request.
 
-**Announcements** (developer tools on `/stats`): one at a time, for everyone, the iPhone app only, the website only, or **outdated iPhone apps** — those before a build number you give (1.6.0 = 352, see the releases on GitHub), read from the app's own request (`TwitchUnblock/<build> CFNetwork/…`, its default User-Agent, which even old versions send: no app update needed). A link to `https://twitchunblock.vercel.app/?update=ios` opens the website's **Update the iPhone app** window, which says what to do for each installer (AltStore, SideStore, Feather, LiveContainer, StikStore and TrollApps through altdirect; ESign, GBox, Scarlet, KSign with the source address or the IPA; TrollStore, Sideloadly with the IPA) — the app opens it too when it finds neither Feather, SideStore nor AltStore.
+**Announcements** (developer tools on `/stats`): one at a time, for everyone, the iPhone app only, the website only, or **outdated iPhone apps** — those before a build number you give (1.6.0 = 352, see the releases on GitHub), read from the app's own request (`TwitchUnblock/<build> CFNetwork/…`, its default User-Agent, which even old versions send: no app update needed). A link to `https://twitchunblock-web.pages.dev/?update=ios` opens the website's **Update the iPhone app** window, which says what to do for each installer (AltStore, SideStore, Feather, LiveContainer, StikStore and TrollApps through altdirect; ESign, GBox, Scarlet, KSign with the source address or the IPA; TrollStore, Sideloadly with the IPA) — the app opens it too when it finds neither Feather, SideStore nor AltStore.
 
 Raw numbers: `GET https://test2.kurzmathis4.workers.dev/api/stats`. They are computed at most once every 10 minutes for everyone (the page shows when): each computation reads every usage entry, and D1's free plan allows 5 million rows read a day. **Refresh** on `/stats` with the owner's account recomputes them at once (`?fresh=1` with the admin token).
 
@@ -400,15 +400,17 @@ Everything lives at the top of `public/assets/js/api.js`:
 | `DEFAULT_FALLBACK_URLS` | Fallback Workers used when the main one hits its daily limit (see [Fallback Worker](#fallback-worker-daily-limit)) |
 | `DEFAULT_RELAY_URL` | Video relay on your own server, used for playback instead of the Worker (see [Video relay](#video-relay-on-your-own-server-vps)). Empty: the Worker relays video |
 | `HELIX_CLIENT_ID` | Twitch application ID (login) |
-| `REDIRECT_URI` | Where Twitch sends you back after login — must be registered exactly as-is in the Twitch developer console |
+| `REDIRECT_URI` | Where Twitch sends you back after login: by default the site's own home page (`location.origin` + `/`), so the login popup and the page share an origin. Each address must be registered exactly as-is in the Twitch developer console (OAuth Redirect URLs): `https://twitchunblock-web.pages.dev/` and the test branch's preview, `https://test-17d298.twitchunblock-web.pages.dev/` |
 | `EXTERNAL_LINKS_VIA_PROXY` | Links handed to VLC / Outplayer / Infuse: through the Worker (`true`) or straight from Twitch (`false`) |
 
 ---
 
 ## Deployment
 
-### Website (Vercel)
-Every push to `main` is deployed automatically. `vercel.json` serves the `public/` folder with no build step.
+### Website (Cloudflare Pages)
+The Cloudflare Pages project `twitchunblock-web` is connected to this repository: every push to `main` is deployed to https://twitchunblock-web.pages.dev, every other branch to its own preview (`test-17d298` → https://test-17d298.twitchunblock-web.pages.dev). Settings: no framework, no build command, **build output directory `public`** (without it, the whole repository is served and the home page is a 404). With no top-level `404.html`, Pages serves `index.html` for unknown paths (channels, VODs…) and drops `.html` from addresses, like `vercel.json` did.
+
+The site was on Vercel (https://twitchunblock.vercel.app) until 21 November 2026, when Vercel paused the free account for going over its 1 million CDN requests a month. `vercel.json` stays for the day the account comes back (a redirect to the new address is the plan).
 
 ### Worker (Cloudflare)
 ```bash

@@ -54,7 +54,7 @@ with its own source code zip. Upload it from the add-on's page in the Developer 
 
 **Description:**
 
-> TwitchUnblock Connect links the TwitchUnblock website (https://twitchunblock.vercel.app),
+> TwitchUnblock Connect links the TwitchUnblock website (https://twitchunblock-web.pages.dev),
 > a lightweight way to watch Twitch, with your Twitch account in this browser.
 >
 > With it, the website can:
@@ -92,11 +92,12 @@ with its own source code zip. Upload it from the add-on's page in the Developer 
 - **Support website:** https://github.com/MXFia19/TwitchUnblock-Web/issues
 - **License:** MIT License (see [LICENSE](../LICENSE)).
 - **This add-on has a privacy policy:** yes → paste [PRIVACY.md](../PRIVACY.md).
-- **Homepage** (in the listing's details, once submitted): https://twitchunblock.vercel.app
+- **Homepage** (in the listing's details, once submitted): https://twitchunblock-web.pages.dev
+  (https://twitchunblock.vercel.app until 21 November 2026: change it by hand on AMO)
 
 ## Notes for Reviewers
 
-> What it does: a bridge between https://twitchunblock.vercel.app (our website, a Twitch
+> What it does: a bridge between https://twitchunblock-web.pages.dev (my website, a Twitch
 > viewer) and the user's Twitch session in this browser. The website talks to a content
 > script (top frame only, on the website's origin). The background checks the sender,
 > origin, frame and arguments, and only performs a closed list of operations
@@ -122,7 +123,7 @@ with its own source code zip. Upload it from the add-on's page in the Developer 
 >   POST https://gql.twitch.tv/integrity via scripting.executeScript (world MAIN, a function
 >   bundled in background.js). Tabs are found through the host permissions: no "tabs".
 >   Only with "Open twitch.tv on TwitchUnblock" on (off by default), registerContentScripts
->   adds redirect.js: channel/VOD/clip/category pages go to twitchunblock.vercel.app;
+>   adds redirect.js: channel/VOD/clip/category pages go to twitchunblock-web.pages.dev;
 > - hosts: *.twitch.tv; static.twitchcdn.net (settings file with the watch statistics
 >   address); usher.ttvnw.net and *.playlist.ttvnw.net (live playlists: drops, 1440p);
 >   *.hls.ttvnw.net (HEAD on segments, drops); the website's origin (content script).
@@ -132,7 +133,7 @@ with its own source code zip. Upload it from the add-on's page in the Developer 
 > confirmation and can be turned off in the extension's window.
 >
 > How to test: log in on https://www.twitch.tv in Firefox, then open
-> https://twitchunblock.vercel.app and a live channel: the channel points button shows the
+> https://twitchunblock-web.pages.dev and a live channel: the channel points button shows the
 > balance read by the extension. Settings → Player → "Higher qualities" uses the playlists.
 > Any free Twitch account works; the extension only uses this browser's session.
 >
@@ -160,6 +161,13 @@ version's release notes and the notes for reviewers.
 
 One per version, under a `### <version>` heading, as a quote. The CI sends the one that
 matches `manifest.json` (paragraphs joined, in English).
+
+### 0.4.2
+
+> The TwitchUnblock website moved to https://twitchunblock-web.pages.dev (its old address,
+> twitchunblock.vercel.app, is offline): the extension now works there, and "Open twitch.tv
+> on TwitchUnblock" opens it. Your browser may ask you once to allow access to the new
+> address. Nothing else changes.
 
 ### 0.4.1
 

@@ -30,9 +30,9 @@ To compare with the submitted package: unzip it into a folder, then
   `service_worker` (Firefox has no background service worker), it adds
   `browser_specific_settings.gecko` (add-on id, minimum Firefox version 140, data collection
   permissions), and it removes the test branch's preview address
-  (`test2-git-test-17d298-mxfia19s-projects.vercel.app`) from the content script and the
+  (`test-17d298.twitchunblock-web.pages.dev`) from the content script and the
   host permissions (`dev/release.mjs`): the repository's folder keeps it for manual tests,
-  the published package only knows https://twitchunblock.vercel.app. `--dev` keeps it.
+  the published package only knows https://twitchunblock-web.pages.dev. `--dev` keeps it.
 
 No minification, bundling, transpiling or code generation: every JavaScript file is the
 hand-written source, copied as is.

@@ -427,8 +427,16 @@ export const GQL_CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko'
  *  des listes (gqlNext) : jamais avec un jeton, jamais pour les jetons de
  *  lecture, les fiches ou le chat, qui restent sur GQL_CLIENT_ID. */
 const GQL_NEXT_CLIENT_ID = 'kd1unb4b3q4t58fwlpcbzcbnm76a8fp'
-/** Seule adresse de retour déclarée chez Twitch : elle ne doit pas changer. */
-export const REDIRECT_URI = CFG.redirectUri || 'https://test2-fawn-eta.vercel.app/'
+/** Retour de la connexion Twitch : l'accueil du site lui-même, pour que la
+ *  popup et la page soient de même origine (index.html, main.js). Chaque
+ *  adresse doit être déclarée telle quelle chez Twitch (dev.twitch.tv →
+ *  l'application → OAuth Redirect URLs) : le site sur Cloudflare Pages et
+ *  l'aperçu de la branche de test. L'ancienne adresse déclarée
+ *  (test2-fawn-eta.vercel.app, que Vercel renvoyait vers le site) est morte
+ *  avec la pause du compte Vercel, le 21/11/2026. Hors d'une page web
+ *  (outils de test, file://) : l'adresse officielle. */
+export const REDIRECT_URI = CFG.redirectUri
+  || (typeof location !== 'undefined' && /^https?:$/.test(location.protocol) ? `${location.origin}/` : 'https://twitchunblock-web.pages.dev/')
 /** `chat:read` / `chat:edit` en plus de l'ancien périmètre : sans eux, l'IRC
  *  refuse le jeton et on ne peut que lire le chat en anonyme. */
 export const SCOPES = ['user:read:follows', 'chat:read', 'chat:edit']

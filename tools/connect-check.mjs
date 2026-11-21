@@ -15,7 +15,7 @@ import { AMO_URL, CONNECT_LATEST, INSTALL_URL, compareVersions, installUrlFor, u
 import { updateBannerHtml } from '../public/assets/js/connect-update.js'
 import { esc } from '../public/assets/js/util.js'
 
-const ORIGIN = 'https://twitchunblock.vercel.app'
+const ORIGIN = 'https://twitchunblock-web.pages.dev'
 const flush = () => new Promise((resolve) => setImmediate(resolve))
 
 /** Horloge simulée : les minuteurs ne partent qu'avec advance(). */
@@ -229,7 +229,7 @@ test('messages étrangers ignorés (autre fenêtre, autre origine, autre marque,
   deliver(res, { source: {} })                              // autre fenêtre (iframe…)
   deliver(res, { source: null })
   deliver(res, { from: 'https://evil.example' })             // autre origine
-  deliver(res, { from: 'https://twitchunblock.vercel.app.evil.example' })
+  deliver(res, { from: 'https://twitchunblock-web.pages.dev.evil.example' })
   deliver({ ...res, tuConnect: 2 })                          // pas notre protocole
   deliver({ ...res, tuConnect: '1' })
   deliver({ ...res, dir: 'req' })                            // une demande, pas une réponse
