@@ -1742,9 +1742,11 @@ export async function getVodMarkers(id) {
  * Storyboard d'une VOD : planches de vignettes de Twitch, pour l'aperçu au
  * survol de la barre de progression et des cartes de VOD. L'adresse vient de
  * GQL (`seekPreviewsURL`) ; son JSON, sur le CloudFront de Twitch, n'a pas
- * d'en-tête CORS pour une autre origine que twitch.tv : il passe par le même
- * /api/proxy que la lecture (relais d'abord, puis Worker), qui accepte déjà
- * les storyboards. Une requête par VOD, gardée en mémoire. Les planches JPG,
+ * d'en-tête CORS pour une autre origine que twitch.tv : il passe par le
+ * /api/proxy de la lecture, qui accepte déjà les storyboards, et par la même
+ * route que la vidéo d'une VOD : le relais principal, sinon son secours
+ * (relayFallback : Sofia, ou un Worker si Sofia est en panne elle aussi).
+ * Quelques Ko, une requête par VOD, gardée en mémoire. Les planches JPG,
  * elles, se chargent directement (une image n'a pas besoin de CORS).
  * → { sheets, cols, rows, w, h, interval, count } ou null (VOD encore en
  * cours d'enregistrement : Twitch n'a pas encore de storyboard).
@@ -1771,15 +1773,19 @@ async function loadStoryboard(id) {
   const info = new URL(video.seekPreviewsURL)
   if (info.protocol !== 'https:' || !info.pathname.endsWith('-info.json')) return null
   for (const base of [...new Set([playbackBase(), relayFallback()])].filter(Boolean)) {
-    let res
+    // Relais qui refuse l’origine ou ne répond pas en 8 s, Worker à court de
+    // quota, réponse qui n’est pas du JSON (page d’erreur) : le suivant. Sans
+    // ça, un relais saturé faisait attendre la vignette sans fin, et une page
+    // d’erreur laissait la VOD sans vignettes 5 min sans essayer le suivant.
+    let list
     try {
-      res = await fetch(`${base}/api/proxy?url=${encodeURIComponent(info.href)}&isVod=false`)
+      const res = await fetch(`${base}/api/proxy?url=${encodeURIComponent(info.href)}&isVod=false`, { signal: AbortSignal.timeout?.(8000) })
+      if (!res.ok) continue
+      list = JSON.parse(await res.text())
     } catch {
       continue
     }
-    // Relais qui refuse l’origine, Worker à court de quota : le suivant.
-    if (!res.ok) continue
-    return pickStoryboard(JSON.parse(await res.text()), info)
+    return pickStoryboard(list, info)
   }
   return null
 }
